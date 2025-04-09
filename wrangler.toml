@@ -2,4 +2,7 @@ name = "boiltask-oj-worker"
 main = "src/index.ts"
 compatibility_date = "2024-04-09"
 [observability]
-    enabled = true
+enabled = true
+[assets]
+directory = "./assets"
+binding = "ASSETS"
