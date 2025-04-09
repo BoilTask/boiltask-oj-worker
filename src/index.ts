@@ -81,6 +81,19 @@ export default {
     const FILE_PATH = `content/problem/${targetOj}/${targetProblem}/index.md`; // 文件路径
     const COMMIT_MESSAGE = `add problem ${targetOj}-${targetProblem} ${title}`;
 
+    const fileMetadataRes = await fetch(
+      `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `token ${GITHUB_TOKEN}`,
+          "User-Agent": "Cloudflare-Worker",
+        },
+      }
+    );
+    const fileMetadata = await fileMetadataRes.json();
+	const fileSha = fileMetadata.sha; // 获取 SHA 值
+
     const uploadRes = await fetch(
       `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`,
       {
@@ -93,6 +106,7 @@ export default {
         body: JSON.stringify({
           message: COMMIT_MESSAGE,
           content: btoa(unescape(encodeURIComponent(markdown))), // base64 编码
+          sha: fileSha, // 提供当前文件的 SHA 值
         }),
       }
     );
