@@ -1,6 +1,8 @@
 import TurndownService from "turndown";
 import { createDocument } from "@mixmark-io/domino";
-const turndownService = new TurndownService();
+const turndownService = new TurndownService({
+  hr: "---",
+});
 
 const getOjTitle = (oj: string): string => {
   switch (oj) {
@@ -71,6 +73,36 @@ export default {
       hint: decodeHTML(hint) || "无",
     });
 
-    return new Response(markdown);
+    // 3. Upload to GitHub via API
+    const GITHUB_TOKEN = env['GITHUB_TOKEN']; 
+    const REPO_OWNER = "BoilTask";
+    const REPO_NAME = "boiltask-oj";
+    const FILE_PATH = `content/problem/${targetOj}/${targetProblem}/index.md`; // 文件路径
+    const COMMIT_MESSAGE = `add problem ${targetOj}-${targetProblem} ${title}`;
+
+    const uploadRes = await fetch(
+      `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`,
+      {
+        method: "PUT",
+        headers: {
+          Authorization: `token ${GITHUB_TOKEN}`,
+          "Content-Type": "application/json",
+          "User-Agent": "Cloudflare-Worker",
+        },
+        body: JSON.stringify({
+          message: COMMIT_MESSAGE,
+          content: btoa(unescape(encodeURIComponent(markdown))), // base64 编码
+        }),
+      }
+    );
+
+    const uploadResult = await uploadRes.json();
+
+    return new Response(
+      JSON.stringify({ ok: true, upload: uploadResult }, null, 2),
+      {
+        headers: { "Content-Type": "application/json" },
+      }
+    );
   },
 };
