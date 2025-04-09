@@ -74,7 +74,8 @@ export default {
     });
 
     // 3. Upload to GitHub via API
-    const GITHUB_TOKEN = env['GITHUB_TOKEN']; 
+    const GITHUB_TOKEN = env.GITHUB_TOKEN;
+
     const REPO_OWNER = "BoilTask";
     const REPO_NAME = "boiltask-oj";
     const FILE_PATH = `content/problem/${targetOj}/${targetProblem}/index.md`; // 文件路径
