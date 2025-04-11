@@ -1,0 +1,5 @@
+singleQuote: false
+semi: true
+printWidth: 150
+trailingComma: es5
+endOfLine: lf
