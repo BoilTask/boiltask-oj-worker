@@ -12,12 +12,11 @@ export async function commitFilesToGitHub(
   branch: string,
   files: GithubContent[],
   commitMessage: string
-): Promise<void> {
-
+): Promise<unknown> {
   const octokit = new Octokit({ auth: token });
 
   // Step 1: 获取目标分支的最新 commit
-  const { data: refData } = await octokit.git.getRef({
+  const { data: refData } = await octokit.rest.git.getRef({
     owner,
     repo,
     ref: `heads/${branch}`,
@@ -25,19 +24,19 @@ export async function commitFilesToGitHub(
 
   const latestCommitSha = refData.object.sha;
   // Step 2: 获取该 commit 的 tree（文件树）SHA
-  const { data: commitData } = await octokit.git.getCommit({
+  const { data: commitData } = await octokit.rest.git.getCommit({
     owner,
     repo,
     commit_sha: latestCommitSha,
   });
   const baseTreeSha = commitData.tree.sha;
 
-  console.log(baseTreeSha)
+  console.log(baseTreeSha);
 
   // Step 3: 为每个文件创建 blob（保存内容）
   const blobResults = await Promise.all(
     files.map((file) =>
-      octokit.git.createBlob({
+      octokit.rest.git.createBlob({
         owner,
         repo,
         content: file.content,
@@ -55,7 +54,7 @@ export async function commitFilesToGitHub(
   }));
 
   // Step 5: 创建新的 tree
-  const { data: newTree } = await octokit.git.createTree({
+  const { data: newTree } = await octokit.rest.git.createTree({
     owner,
     repo,
     base_tree: baseTreeSha,
@@ -63,7 +62,7 @@ export async function commitFilesToGitHub(
   });
 
   // Step 6: 创建新的 commit
-  const { data: newCommit } = await octokit.git.createCommit({
+  const { data: newCommit } = await octokit.rest.git.createCommit({
     owner,
     repo,
     message: commitMessage,
@@ -72,7 +71,7 @@ export async function commitFilesToGitHub(
   });
 
   // Step 7: 更新分支指向新 commit
-  await octokit.git.updateRef({
+  await octokit.rest.git.updateRef({
     owner,
     repo,
     ref: `heads/${branch}`,
@@ -80,4 +79,11 @@ export async function commitFilesToGitHub(
   });
 
   console.log(`✅ 成功提交 ${files.length} 个文件到 ${owner}/${repo}@${branch}`);
+
+  return {
+    owner: owner,
+    repo: repo,
+    branch: branch,
+    files: files.map((file) => file.path),
+  };
 }
