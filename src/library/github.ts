@@ -1,3 +1,4 @@
+import { Buffer } from "buffer";
 import { Octokit } from "octokit";
 
 export interface GithubContent {
@@ -14,6 +15,47 @@ export async function commitFilesToGitHub(
   commitMessage: string
 ): Promise<unknown> {
   const octokit = new Octokit({ auth: token });
+
+  let hasChanges = false;
+  try {
+    // 获取当前文件的内容
+    const currentFiles = await Promise.all(
+      files.map((file) =>
+        octokit.rest.repos.getContent({
+          owner,
+          repo,
+          path: file.path,
+          ref: branch,
+        })
+      )
+    );
+    // 检查文件是否有变化
+    hasChanges = files.some((file, index) => {
+      const currentFile = currentFiles[index];
+      if (!currentFile.data) {
+        return true; // 文件不存在，有变化
+      }
+      if ("content" in currentFile.data) {
+        const currentContent = Buffer.from(currentFile.data.content, "base64").toString("utf-8");
+        return currentContent !== file.content;
+      }
+      return true;
+    });
+  } catch (err) {
+    hasChanges = true;
+  }
+
+  // 如果没有变化，直接返回
+  if (!hasChanges) {
+    console.log(`✅ 所有文件无变化，取消提交到 ${owner}/${repo}@${branch}`);
+    return {
+      changed: false,
+      owner: owner,
+      repo: repo,
+      branch: branch,
+      files: files.map((file) => file.path),
+    };
+  }
 
   // Step 1: 获取目标分支的最新 commit
   const { data: refData } = await octokit.rest.git.getRef({
@@ -81,6 +123,7 @@ export async function commitFilesToGitHub(
   console.log(`✅ 成功提交 ${files.length} 个文件到 ${owner}/${repo}@${branch}`);
 
   return {
+    changed: true,
     owner: owner,
     repo: repo,
     branch: branch,
