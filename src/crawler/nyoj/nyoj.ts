@@ -8,6 +8,46 @@ export class NyojCrawler extends Crawler {
     return "nyoj";
   }
 
+  decodeExamples(example: string): string {
+    // "examples": "\u003Cinput\u003E1\n5\namMac\u003C/input\u003E\u003Coutput\u003E0\u003C/output\u003E\u003Cinput\u003E1\n5\nACMAM\u003C/input\u003E\u003Coutput\u003E1\u003C/output\u003E",
+    // 使用```包括每一个input与output
+    // ### 示例1
+    // #### 输入
+    // ```
+    // 1
+    // ```
+    // #### 输出
+    // ```
+    // 0
+    // ```
+    // ### 示例2
+    // ……
+    example = decodeHTML(example)
+    const inputRegex = /<input>(.*?)<\/input>/g;
+    const outputRegex = /<output>(.*?)<\/output>/g;
+    const inputs = [
+      ...example.matchAll(inputRegex),
+    ].map((match) => match[1]);
+    const outputs = [
+     ...example.matchAll(outputRegex),
+    ].map((match) => match[1]
+      );
+    let result = ""
+    for (let i = 0; i < inputs.length; i++) {
+      result += `### 示例${i + 1}\n`
+      result += `#### 输入\n`
+      result += `\`\`\`\n
+      ${inputs[i]}
+      \`\`\`\n`
+      result += `#### 输出\n`
+      result += `\`\`\`\n
+      ${outputs[i]}
+      \`\`\`\n`
+      result += `\n`
+    }
+    return result
+  }
+
   async fetchContent(request: Request, env: Env, problem: string): Promise<CrawlerResponse> {
     const targetUrl = "https://xcpc.nyist.edu.cn/api/get-problem-detail?problemId=" + problem;
     const res = await fetch(targetUrl);
@@ -50,7 +90,7 @@ export class NyojCrawler extends Crawler {
             description: decodeHTML(description),
             input: decodeHTML(input),
             output: decodeHTML(output),
-            examples: decodeHTML(examples),
+            examples: this.decodeExamples(examples),
             source: decodeHTML(source),
             hint: decodeHTML(hint) || "无",
           }),
