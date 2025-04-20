@@ -50,7 +50,7 @@ export class HduCrawler extends Crawler {
             output: contentMap["Output"] || "",
             sampleInput: contentMap["Sample Input"] || "",
             sampleOutput: contentMap["Sample Output"] || "",
-            hint: contentMap["Hint"] ? "\n\n## Sample Output\n\n" + contentMap["Hint"] : "",
+            hint: contentMap["Hint"] ? "\n\n## Hint\n\n" + contentMap["Hint"] : "",
             author: contentMap["Author"] ? "\n\n## Author\n\n" + contentMap["Author"] : "",
             source: contentMap["Source"] ? "\n\n## Source\n\n" + contentMap["Source"] : "",
           }),
