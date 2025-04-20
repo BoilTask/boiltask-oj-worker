@@ -22,12 +22,8 @@ categories:
 
 ## Sample Input
 
-```
 {{sampleInput}}
-```
 
 ## Sample Output
 
-```
-{{sampleOutput}}
-```{{hint}}{{author}}{{source}}
+{{sampleOutput}}{{hint}}{{author}}{{source}}
