@@ -1,4 +1,4 @@
-import { render, decodeHTML } from "render";
+import { render, decodeHTMLToMarkdown } from "render";
 import { CrawlerResponse } from "../define";
 import { Crawler } from "../crawler";
 import { ErrorCode } from "../../error/code";
@@ -22,34 +22,38 @@ export class NyojCrawler extends Crawler {
     // ```
     // ### 示例2
     // ……
-    example = decodeHTML(example)
-    const inputRegex = /<input>(.*?)<\/input>/g;
-    const outputRegex = /<output>(.*?)<\/output>/g;
-    const inputs = [
-      ...example.matchAll(inputRegex),
-    ].map((match) => match[1]);
-    const outputs = [
-     ...example.matchAll(outputRegex),
-    ].map((match) => match[1]
-      );
-    let result = ""
-    for (let i = 0; i < inputs.length; i++) {
-      result += `### 示例${i + 1}\n`
-      result += `#### 输入\n`
-      result += `\`\`\`\n
-      ${inputs[i]}
-      \`\`\`\n`
-      result += `#### 输出\n`
-      result += `\`\`\`\n
-      ${outputs[i]}
-      \`\`\`\n`
-      result += `\n`
-    }
-    return result
+
+    // example = decodeHTMLToMarkdown(example)
+    // const inputRegex = /<input>(.*?)<\/input>/g;
+    // const outputRegex = /<output>(.*?)<\/output>/g;
+    // const inputs = [
+    //   ...example.matchAll(inputRegex),
+    // ].map((match) => match[1]);
+    // const outputs = [
+    //  ...example.matchAll(outputRegex),
+    // ].map((match) => match[1]
+    //   );
+    // let result = ""
+    // for (let i = 0; i < inputs.length; i++) {
+    //   result += `### 示例${i + 1}\n`
+    //   result += `#### 输入\n`
+    //   result += `\`\`\`\n
+    //   ${inputs[i]}
+    //   \`\`\`\n`
+    //   result += `#### 输出\n`
+    //   result += `\`\`\`\n
+    //   ${outputs[i]}
+    //   \`\`\`\n`
+    //   result += `\n`
+    // }
+    // return result
+
+    return example;
   }
 
   async fetchContent(request: Request, env: Env, problem: string): Promise<CrawlerResponse> {
-    const targetUrl = "https://xcpc.nyist.edu.cn/api/get-problem-detail?problemId=" + problem;
+    const baseUrl = "https://xcpc.nyist.edu.cn/";
+    const targetUrl = `${baseUrl}api/get-problem-detail?problemId=` + problem;
     const res = await fetch(targetUrl);
     const json = (await res.json()) as any;
 
@@ -86,13 +90,13 @@ export class NyojCrawler extends Crawler {
             oj: "nyoj",
             problem: problem,
             oj_title: "NYOJ",
-            title: decodeHTML(title),
-            description: decodeHTML(description),
-            input: decodeHTML(input),
-            output: decodeHTML(output),
+            title: decodeHTMLToMarkdown(title, baseUrl),
+            description: decodeHTMLToMarkdown(description, baseUrl),
+            input: decodeHTMLToMarkdown(input, baseUrl),
+            output: decodeHTMLToMarkdown(output, baseUrl),
             examples: this.decodeExamples(examples),
-            source: decodeHTML(source),
-            hint: decodeHTML(hint) || "无",
+            source: decodeHTMLToMarkdown(source, baseUrl),
+            hint: decodeHTMLToMarkdown(hint, baseUrl) || "无",
           }),
         },
       ],
