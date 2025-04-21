@@ -45,16 +45,17 @@ export function render(template: string, data: Record<string, string>): string {
 }
 
 export function fixRelativeLinks(html: string, baseUrl: string): string {
-  // 处理 href="/xxx"
-  html = html.replace(/(href)=["'](\/[^"']*)["']/gi, (_, attr, path) => {
+  // 通用处理函数，判断是否以 http(s) 开头
+  const replacer = (attr: string, path: string): string => {
+    if (/^https?:\/\//i.test(path)) {
+      return `${attr}="${path}"`;
+    }
     return `${attr}="${baseUrl}${path}"`;
-  });
-
-  // 处理 src="/xxx"
-  html = html.replace(/(src)=["'](\/[^"']*)["']/gi, (_, attr, path) => {
-    return `${attr}="${baseUrl}${path}"`;
-  });
-
+  };
+  // 处理 href
+  html = html.replace(/(href)=["']([^"']+)["']/gi, (_, attr, path) => replacer(attr, path));
+  // 处理 src
+  html = html.replace(/(src)=["']([^"']+)["']/gi, (_, attr, path) => replacer(attr, path));
   return html;
 }
 
