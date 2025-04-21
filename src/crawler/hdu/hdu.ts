@@ -20,6 +20,13 @@ export class HduCrawler extends Crawler {
 
     const title = $("h1").first().text().trim();
 
+    const tbodyText = $("tbody").text();
+
+    const limitMatch  = tbodyText.match(/Time Limit: ([\s\S]+) (Java\/Others)\s+Memory Limit: ([\s\S]+) (Java\/Others)/);
+
+    const timeLimit = (limitMatch ? limitMatch[1] : "?");
+    const memoryLimit = (limitMatch ? limitMatch[2] : "?");
+
     const contentMap: Record<string, string> = {};
     let currentSection = "";
 
@@ -44,7 +51,9 @@ export class HduCrawler extends Crawler {
             oj: "hdu",
             problem: problemId,
             oj_title: "HDU",
-            title,
+            title: title,
+            timeLimit: timeLimit,
+            memoryLimit: memoryLimit,
             description: contentMap["Problem Description"] || "",
             input: contentMap["Input"] || "",
             output: contentMap["Output"] || "",

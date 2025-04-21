@@ -27,6 +27,14 @@ export class ZzuliCrawler extends Crawler {
       .replace(/^\d+:\s*/, "")
       .trim();
 
+    // 提取时间与内存限制
+    const centerText = $("center").first().text();
+    const timeLimitMatch  = centerText.match(/时间限制:\s*(\d+)/);
+    const memoryLimitMatch = centerText.match(/内存限制:\s*(\d+)/);
+
+    const timeLimit = (timeLimitMatch ? timeLimitMatch[1] : "?") + " Sec";
+    const memoryLimit = (memoryLimitMatch ? memoryLimitMatch[1] : "?") + " MB";
+
     const contentMap: Record<string, string> = {};
     let currentSection = "";
 
@@ -56,7 +64,9 @@ export class ZzuliCrawler extends Crawler {
             oj: "zzuli",
             problem: problemId,
             oj_title: "ZZULI",
-            title,
+            title: title,
+            timeLimit: timeLimit,
+            memoryLimit: memoryLimit,
             description: contentMap["题目描述"] || "",
             input: contentMap["输入"] || "",
             output: contentMap["输出"] || "",
