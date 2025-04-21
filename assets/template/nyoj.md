@@ -4,9 +4,10 @@ type: post
 slug: {{oj}}-{{problem}}
 categories:
   - {{oj}}
-problem_title: {{title}}
-time_limit: {{timeLimit}}
-memory_limit: {{memoryLimit}}
+ProblemParams:
+  ProblemTitle: "{{title}}"
+  TimeLimit: "{{timeLimit}}"
+  MemoryLimit: "{{memoryLimit}}"
 ---
 
 # {{title}}

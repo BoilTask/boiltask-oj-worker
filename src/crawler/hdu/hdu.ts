@@ -22,7 +22,7 @@ export class HduCrawler extends Crawler {
 
     const tbodyText = $("tbody").text();
 
-    const limitMatch  = tbodyText.match(/Time Limit: ([\s\S]+) (Java\/Others)\s+Memory Limit: ([\s\S]+) (Java\/Others)/);
+    const limitMatch  = tbodyText.match(/Time Limit: ([\s\S]+?) \(Java\/Others\)\s+Memory Limit: ([\s\S]+?) \(Java\/Others\)/);
 
     const timeLimit = (limitMatch ? limitMatch[1] : "?");
     const memoryLimit = (limitMatch ? limitMatch[2] : "?");
