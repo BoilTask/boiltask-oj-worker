@@ -10,8 +10,6 @@ ProblemParams:
   MemoryLimit: "{{memoryLimit}}"
 ---
 
-# {{title}}
-
 ## 题目描述
 
 {{description}}

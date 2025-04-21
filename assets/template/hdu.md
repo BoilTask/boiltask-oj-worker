@@ -10,8 +10,6 @@ ProblemParams:
     MemoryLimit: "{{memoryLimit}}"
 ---
 
-# {{title}}
-
 ## Problem Description
 
 {{description}}
