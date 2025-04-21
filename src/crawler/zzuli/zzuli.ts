@@ -9,7 +9,7 @@ export class ZzuliCrawler extends Crawler {
   }
 
   async fetchContent(request: Request, env: Env, problemId: string): Promise<CrawlerResponse> {
-    const baseUrl = "https://web.archive.org/web/20210228035830/http://acm.zzuli.edu.cn/";
+    const baseUrl = "https://web.archive.org/web/http://acm.zzuli.edu.cn/";
     const url = `${baseUrl}problem.php?id=${problemId}`;
     const res = await fetch(url);
     const buffer = await res.arrayBuffer();
