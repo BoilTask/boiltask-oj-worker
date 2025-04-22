@@ -35,7 +35,7 @@ export class LightojCrawler extends Crawler {
 
     let hint = null;
     const hintElement = cardDiv.find(".post-text > div").eq(4);
-    if (hintElement) {
+    if (hintElement.html()) {
       hint = decodeHTMLToMarkdown(hintElement.find(".markdown-body").html(), baseUrl);
     }
 
