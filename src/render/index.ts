@@ -2,42 +2,42 @@
 // @ts-expect-error
 import { createDocument } from "@mixmark-io/domino";
 import TurndownService from "turndown";
+import { gfm } from "turndown-plugin-gfm";
 
 const turndownService = new TurndownService({
   hr: "---",
 });
+turndownService.use(gfm);
 
-turndownService.addRule('inputToCodeBlock', {
-  filter: ['input'],
+turndownService.addRule("inputToCodeBlock", {
+  filter: ["input"],
   replacement: function (content) {
     return `\`\`\`\n${content}\n\`\`\``;
-  }
+  },
 });
 
-turndownService.addRule('outputToCodeBlock', {
-  filter: ['output'],
+turndownService.addRule("outputToCodeBlock", {
+  filter: ["output"],
   replacement: function (content) {
     return `\`\`\`\n${content}\n\`\`\``;
-  }
+  },
 });
 
-turndownService.addRule('preWithCodeAndLang', {
+turndownService.addRule("preWithCodeAndLang", {
   filter: (node) => {
-    return (
-      node.localName.toLowerCase() === 'pre'
-    );
+    return node.localName.toLowerCase() === "pre";
   },
   replacement: function (_content, node) {
     const codeNode = node.firstChild as HTMLElement;
-    const className = codeNode.getAttribute('class') || '';
+    const className = codeNode.getAttribute("class") || "";
 
     // 提取语言名，忽略大小写，统一为小写
     const match = className.match(/(?:language|lang)-([a-z0-9]+)/i);
-    const language = match ? match[1].toLowerCase() : '';
+    const language = match ? match[1].toLowerCase() : "";
 
-    const code = codeNode.textContent || '';
+    const code = codeNode.textContent || "";
     return `\`\`\`${language}\n${code}\n\`\`\``;
-  }
+  },
 });
 
 export function render(template: string, data: Record<string, string>): string {
