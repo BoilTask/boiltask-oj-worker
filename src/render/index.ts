@@ -7,12 +7,15 @@ import { gfm } from "turndown-plugin-gfm";
 const turndownService = new TurndownService({
   hr: "---",
 });
+
 turndownService.use(gfm);
+
 turndownService.addRule("texSpanToMath", {
   filter: (node) => {
     return node.nodeName.toLowerCase() === "span" && node.classList.contains("tex-span");
   },
   replacement: (content, node) => {
+    // 去除所有 <i> 标签
     const iTags = node.querySelectorAll("i");
     for (let i = 0; i < iTags.length; i++) {
       const tag = iTags[i];
@@ -27,16 +30,18 @@ turndownService.addRule("texSpanToMath", {
     content = node.textContent;
     const subs = node.querySelectorAll("sub");
     for (let i = 0; i < subs.length; i++) {
-      const sub = subs[i];
-      const subText = sub.textContent;
+      const subText = subs[i].textContent;
+      // 替换所有相同 sub 内容
       content = content.replace(subText, `_{${subText}}`);
     }
+
     const sups = node.querySelectorAll("sup");
     for (let i = 0; i < sups.length; i++) {
-      const sup = sups[i];
-      const supText = sup.textContent;
+      const supText = sups[i].textContent;
+      // 替换所有相同 sup 内容
       content = content.replace(supText, `^{${supText}}`);
     }
+
     return `$${content}$`;
   },
 });
