@@ -63,7 +63,7 @@ export class CodeforcesCrawler extends Crawler {
     const sample = decodeHTMLToMarkdown(sampleHtml, baseUrl);
 
     let hint = null;
-    if (divList.eq(5)) {
+    if (divList.eq(5).html()) {
       const hintDiv = divList.eq(5)
       hintDiv.find("div").remove();
       hint = decodeHTMLToMarkdown(hintDiv.html(), baseUrl);
