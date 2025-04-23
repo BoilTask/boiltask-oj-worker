@@ -38,8 +38,8 @@ export class CodeforcesCrawler extends Crawler {
 
     const problemStatement = $(".problem-statement");
 
-    const timeLimit = problemStatement.find(".header > .time-limit").eq(0).remove().text().trim();
-    const memoryLimit = problemStatement.find(".header > .memory-limit").eq(0).remove().text().trim();
+    const timeLimit = problemStatement.find(".header > .time-limit").find('.property-title').remove().text().trim();
+    const memoryLimit = problemStatement.find(".header > .memory-limit").find('.property-title').remove().text().trim();
 
     const divList = $(".problem-statement > div");
 
