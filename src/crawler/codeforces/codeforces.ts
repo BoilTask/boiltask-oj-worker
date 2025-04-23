@@ -1,4 +1,4 @@
-import { render, decodeHTMLToMarkdown } from "render";
+import { render, decodeHTMLToMarkdown, fixRelativeLinks } from "render";
 import { CrawlerResponse } from "../define";
 import { Crawler } from "../crawler";
 import * as cheerio from "cheerio";
@@ -27,9 +27,8 @@ export class CodeforcesCrawler extends Crawler {
     };
     const url = `${baseUrl}/problemset/problem/${contestId}/${problemName}`;
     const res = await fetch(url, requestOptions);
-    const buffer = await res.arrayBuffer();
-    const decoder = new TextDecoder("gbk");
-    const html = decoder.decode(buffer);
+    const buffer = await res.arrayBuffer()
+    const html = new TextDecoder('utf-8').decode(buffer)
 
     const $ = cheerio.load(html);
 
@@ -38,24 +37,36 @@ export class CodeforcesCrawler extends Crawler {
 
     const problemStatement = $(".problem-statement");
 
-    const timeLimit = problemStatement.find(".header > .time-limit").find('.property-title').remove().text().trim();
-    const memoryLimit = problemStatement.find(".header > .memory-limit").find('.property-title').remove().text().trim();
+    const timeDiv = problemStatement.find(".header > .time-limit");
+    timeDiv.find(".property-title").remove();
+    const timeLimit = timeDiv.text().trim();
+    const memoryDiv = problemStatement.find(".header > .memory-limit");
+    memoryDiv.find(".property-title").remove();
+    const memoryLimit = memoryDiv.text().trim();
 
     const divList = $(".problem-statement > div");
 
     const description = decodeHTMLToMarkdown(divList.eq(1).html(), baseUrl);
-    const input = decodeHTMLToMarkdown(divList.eq(2).html(), baseUrl);
-    const output = decodeHTMLToMarkdown(divList.eq(3).html(), baseUrl);
 
-    let sampleHtml = divList.eq(4).html();
-    sampleHtml.replace(/<div class="section-title">Examples<\/div>/, "");
-    sampleHtml = sampleHtml.replace(/<div class="title">Input<\/div>/, '<h3>Input</h3>');
-    sampleHtml = sampleHtml.replace(/<div class="title">Output<\/div>/, '<h3>Output</h3>');
+    const inputDiv = divList.eq(2);
+    inputDiv.find("div").remove();
+    const input = decodeHTMLToMarkdown(inputDiv.html(), baseUrl);
+    const outputDiv = divList.eq(3);
+    outputDiv.find("div").remove();
+    const output = decodeHTMLToMarkdown(outputDiv.html(), baseUrl);
+
+    const sampleDiv = divList.eq(4);
+    sampleDiv.find(".section-title").remove();
+    let sampleHtml = sampleDiv.html();
+    sampleHtml = sampleHtml.replaceAll(/<div class="title">Input<\/div>/g, "<h3>Input</h3>");
+    sampleHtml = sampleHtml.replaceAll(/<div class="title">Output<\/div>/g, "<h3>Output</h3>");
     const sample = decodeHTMLToMarkdown(sampleHtml, baseUrl);
 
     let hint = null;
     if (divList.eq(5)) {
-      hint = decodeHTMLToMarkdown(divList.eq(5).html(), baseUrl);
+      const hintDiv = divList.eq(5)
+      hintDiv.find("div").remove();
+      hint = decodeHTMLToMarkdown(hintDiv.html(), baseUrl);
     }
 
     const templateText = await this.getTemplateText(request, env); // 你已有的方法

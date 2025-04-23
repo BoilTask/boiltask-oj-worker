@@ -9,6 +9,18 @@ const turndownService = new TurndownService({
 });
 turndownService.use(gfm);
 
+// 处理 <span class="tex-span"><i>变量</i></span> 为 $变量$
+turndownService.addRule("texSpanToMath", {
+  filter: (node) => {
+    return node.nodeName.toLowerCase() === "span" && node.classList.contains("tex-span");
+  },
+  replacement: (content, node) => {
+    const iNode = node.querySelector("i");
+    const mathText = iNode ? iNode.textContent : content;
+    return `$${mathText}$`;
+  },
+});
+
 turndownService.addRule("inputToCodeBlock", {
   filter: ["input"],
   replacement: function (content) {
