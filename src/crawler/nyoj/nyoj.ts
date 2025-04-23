@@ -38,9 +38,9 @@ export class NyojCrawler extends Crawler {
     const templateText = await this.getTemplateText(request, env);
 
     const finalExamples = examples
-      .replace(/<input>/g, '<h3>Input</h3><pre>')
+      .replace(/<input>/g, '<h3>用例输入</h3><pre>')
       .replace(/<\/input>/g, '</pre><br/>')
-      .replace(/<output>/g, '<h3>Output</h3><pre>')
+      .replace(/<output>/g, '<h3>用例输出</h3><pre>')
       .replace(/<\/output>/g, '</pre><br/>');
 
     return {

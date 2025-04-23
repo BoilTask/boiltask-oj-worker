@@ -22,7 +22,7 @@ ProblemParams:
 
 {{output}}
 
-## 示例
+## 用例
 
 {{examples}}
 
