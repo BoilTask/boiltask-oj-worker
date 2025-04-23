@@ -30,22 +30,20 @@ export class UvaCrawler extends Crawler {
     const memoryLimit = null; // 同上
 
     const pdfUrl = html.match(/<a href="(external\/\S+)">/);
-    const downloadUrl = baseUrl + pdfUrl;
+    const downloadUrl = baseUrl + pdfUrl[1];
+
     const pdfResponse = await fetch(downloadUrl);
     const fileBuffer = await pdfResponse.arrayBuffer();
-    const contentType = pdfResponse.headers.get("content-type") || "application/octet-stream";
     const fileName = downloadUrl.split("/").pop();
-    const r2Response = await env.BOILTASK_OJ_BUCKET.put(fileName, fileBuffer, {
+    const r2Path = `uva-${problemId}/${fileName}`;
+    const r2Response = await env.BOILTASK_OJ_BUCKET.put(r2Path, fileBuffer, {
       httpMetadata: {
-        contentType,
+        contentType: "application/pdf",
       },
     });
 
-    console.log(r2Response);
-
-
     // 计算pdf的链接
-    const view = uvaUrl;
+    const view = "https://r2-oj.boiltask.com/" + r2Response.key;
 
     const templateText = await this.getTemplateText(request, env);
 
