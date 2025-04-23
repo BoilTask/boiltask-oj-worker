@@ -25,18 +25,26 @@ turndownService.addRule("outputToCodeBlock", {
 
 turndownService.addRule("preWithCodeAndLang", {
   filter: (node) => {
-    return node.localName.toLowerCase() === "pre";
+    return node.nodeName.toLowerCase() === "pre";
   },
   replacement: function (_content, node) {
-    const codeNode = node.firstChild as any;
-    const className = codeNode.getAttribute("class") || "";
+    let codeNode = node.firstChild as HTMLElement;
+    if (!codeNode || !codeNode.getAttribute) {
+      codeNode = node as HTMLElement;
+    }
 
-    // 提取语言名，忽略大小写，统一为小写
+    const className = codeNode.getAttribute("class") || "";
     const match = className.match(/(?:language|lang)-([a-z0-9]+)/i);
     const language = match ? match[1].toLowerCase() : "";
 
-    const code = codeNode.textContent || "";
-    return `\`\`\`${language}\n${code}\n\`\`\``;
+    // 手动将 <br> 转换为换行符
+    let html = (codeNode as any).innerHTML || "";
+    html = html.replace(/<br\s*\/?>/gi, "\n");
+
+    // 去除其余的 HTML 标签，仅保留文本（可选，如果你确认内容就是纯文本可以省略）
+    const strippedText = html.replace(/<\/?[^>]+(>|$)/g, "");
+
+    return `\`\`\`${language}\n${strippedText}\n\`\`\``;
   },
 });
 
