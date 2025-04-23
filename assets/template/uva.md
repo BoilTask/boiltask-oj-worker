@@ -7,10 +7,9 @@ categories:
 ProblemParams:
     ProblemTitle: "{{title}}"
     TimeLimit: "{{timeLimit}}"
-    MemoryLimit: "{{memoryLimit}}"
 ---
 
-{{% iframe
+{{% pdf_view
 url="{{url}}"
-view="{{view}}"
+link="{{link}}"
 %}}

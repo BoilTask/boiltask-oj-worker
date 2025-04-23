@@ -7,3 +7,8 @@ enabled = true
 [assets]
 directory = "./assets"
 binding = "ASSETS"
+
+[[r2_buckets]]
+binding = "BOILTASK_OJ_BUCKET"
+bucket_name = "boiltask-oj"
+preview_bucket_name = "boiltask-oj"

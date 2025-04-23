@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@mixmark-io/domino": "^2.2.0",
+    "axios": "^1.8.4",
     "cheerio": "^1.0.0",
     "html-entities": "^2.6.0",
     "octokit": "^4.1.2",
