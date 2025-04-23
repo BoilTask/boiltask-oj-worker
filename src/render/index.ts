@@ -28,7 +28,7 @@ turndownService.addRule("preWithCodeAndLang", {
     return node.localName.toLowerCase() === "pre";
   },
   replacement: function (_content, node) {
-    const codeNode = node.firstChild as HTMLElement;
+    const codeNode = node.firstChild as any;
     const className = codeNode.getAttribute("class") || "";
 
     // 提取语言名，忽略大小写，统一为小写
