@@ -8,49 +8,6 @@ export class NyojCrawler extends Crawler {
     return "nyoj";
   }
 
-  decodeExamples(example: string): string {
-    // "examples": "\u003Cinput\u003E1\n5\namMac\u003C/input\u003E\u003Coutput\u003E0\u003C/output\u003E\u003Cinput\u003E1\n5\nACMAM\u003C/input\u003E\u003Coutput\u003E1\u003C/output\u003E",
-    // 使用```包括每一个input与output
-    // ### 示例1
-    // #### 输入
-    // ```
-    // 1
-    // ```
-    // #### 输出
-    // ```
-    // 0
-    // ```
-    // ### 示例2
-    // ……
-
-    // example = decodeHTMLToMarkdown(example)
-    // const inputRegex = /<input>(.*?)<\/input>/g;
-    // const outputRegex = /<output>(.*?)<\/output>/g;
-    // const inputs = [
-    //   ...example.matchAll(inputRegex),
-    // ].map((match) => match[1]);
-    // const outputs = [
-    //  ...example.matchAll(outputRegex),
-    // ].map((match) => match[1]
-    //   );
-    // let result = ""
-    // for (let i = 0; i < inputs.length; i++) {
-    //   result += `### 示例${i + 1}\n`
-    //   result += `#### 输入\n`
-    //   result += `\`\`\`\n
-    //   ${inputs[i]}
-    //   \`\`\`\n`
-    //   result += `#### 输出\n`
-    //   result += `\`\`\`\n
-    //   ${outputs[i]}
-    //   \`\`\`\n`
-    //   result += `\n`
-    // }
-    // return result
-
-    return example;
-  }
-
   async fetchContent(request: Request, env: Env, problem: string): Promise<CrawlerResponse> {
     const baseUrl = "https://xcpc.nyist.edu.cn/";
     const targetUrl = `${baseUrl}api/get-problem-detail?problemId=` + problem;
@@ -80,6 +37,12 @@ export class NyojCrawler extends Crawler {
 
     const templateText = await this.getTemplateText(request, env);
 
+    const finalExamples = examples
+      .replace(/<input>/g, '<h3>Input</h3><pre>')
+      .replace(/<\/input>/g, '</pre><br/>')
+      .replace(/<output>/g, '<h3>Output</h3><pre>')
+      .replace(/<\/output>/g, '</pre><br/>');
+
     return {
       code: 0,
       title: title,
@@ -94,7 +57,7 @@ export class NyojCrawler extends Crawler {
             description: decodeHTMLToMarkdown(description, baseUrl),
             input: decodeHTMLToMarkdown(input, baseUrl),
             output: decodeHTMLToMarkdown(output, baseUrl),
-            examples: this.decodeExamples(examples),
+            examples: decodeHTMLToMarkdown(finalExamples, baseUrl),
             source: decodeHTMLToMarkdown(source, baseUrl),
             hint: decodeHTMLToMarkdown(hint, baseUrl) || "无",
           }),

@@ -46,20 +46,6 @@ turndownService.addRule("texSpanToMath", {
   },
 });
 
-turndownService.addRule("inputToCodeBlock", {
-  filter: ["input"],
-  replacement: function (content) {
-    return `\`\`\`\n${content}\n\`\`\``;
-  },
-});
-
-turndownService.addRule("outputToCodeBlock", {
-  filter: ["output"],
-  replacement: function (content) {
-    return `\`\`\`\n${content}\n\`\`\``;
-  },
-});
-
 turndownService.addRule("preWithCodeAndLang", {
   filter: (node) => {
     return node.nodeName.toLowerCase() === "pre";
