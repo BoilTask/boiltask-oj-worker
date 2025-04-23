@@ -8,16 +8,36 @@ const turndownService = new TurndownService({
   hr: "---",
 });
 turndownService.use(gfm);
-
-// 处理 <span class="tex-span"><i>变量</i></span> 为 $变量$
 turndownService.addRule("texSpanToMath", {
   filter: (node) => {
     return node.nodeName.toLowerCase() === "span" && node.classList.contains("tex-span");
   },
   replacement: (content, node) => {
-    const iNode = node.querySelector("i");
-    const mathText = iNode ? iNode.textContent : content;
-    return `$${mathText}$`;
+    const iTags = node.querySelectorAll("i");
+    for (let i = 0; i < iTags.length; i++) {
+      const tag = iTags[i];
+      const parent = tag.parentNode;
+      if (parent) {
+        while (tag.firstChild) {
+          parent.insertBefore(tag.firstChild, tag);
+        }
+        parent.removeChild(tag);
+      }
+    }
+    content = node.textContent;
+    const subs = node.querySelectorAll("sub");
+    for (let i = 0; i < subs.length; i++) {
+      const sub = subs[i];
+      const subText = sub.textContent;
+      content = content.replace(subText, `_{${subText}}`);
+    }
+    const sups = node.querySelectorAll("sup");
+    for (let i = 0; i < sups.length; i++) {
+      const sup = sups[i];
+      const supText = sup.textContent;
+      content = content.replace(supText, `^{${supText}}`);
+    }
+    return `$${content}$`;
   },
 });
 

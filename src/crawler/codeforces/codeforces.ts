@@ -33,7 +33,7 @@ export class CodeforcesCrawler extends Crawler {
     const $ = cheerio.load(html);
 
     let title = $(".header > .title").text().trim();
-    title = title.replace(/^[A-Z]\.\s*/, "");
+    title = title.replace(/^[\S+]\.\s*/, "");
 
     const problemStatement = $(".problem-statement");
 
