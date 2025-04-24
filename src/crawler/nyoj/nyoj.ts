@@ -37,11 +37,23 @@ export class NyojCrawler extends Crawler {
 
     const templateText = await this.getTemplateText(request, env);
 
-    const finalExamples = examples
-      .replace(/<input>/g, '<h3>用例输入</h3><pre>')
-      .replace(/<\/input>/g, '</pre><br/>')
-      .replace(/<output>/g, '<h3>用例输出</h3><pre>')
-      .replace(/<\/output>/g, '</pre><br/>');
+    let finalExamples = examples
+      .replace(/<input>/g, "<h3>用例输入</h3><pre>")
+      .replace(/<\/input>/g, "</pre><br/>")
+      .replace(/<output>/g, "<h3>用例输出</h3><pre>")
+      .replace(/<\/output>/g, "</pre><br/>");
+    finalExamples = decodeHTMLToMarkdown(finalExamples, baseUrl);
+
+    const finalDescription = decodeHTMLToMarkdown(description, baseUrl);
+
+    let finalInput = input.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    finalInput = decodeHTMLToMarkdown(finalInput, baseUrl);
+
+    let finalOutput = output.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    finalOutput = decodeHTMLToMarkdown(finalOutput, baseUrl);
+
+    const finalHint = decodeHTMLToMarkdown(hint, baseUrl);
+    const finalSource = decodeHTMLToMarkdown(source, baseUrl);
 
     return {
       code: 0,
@@ -54,12 +66,12 @@ export class NyojCrawler extends Crawler {
             problem: problem,
             oj_title: "NYOJ",
             title: decodeHTMLToMarkdown(title, baseUrl),
-            description: decodeHTMLToMarkdown(description, baseUrl),
-            input: decodeHTMLToMarkdown(input, baseUrl),
-            output: decodeHTMLToMarkdown(output, baseUrl),
-            examples: decodeHTMLToMarkdown(finalExamples, baseUrl),
-            source: decodeHTMLToMarkdown(source, baseUrl),
-            hint: decodeHTMLToMarkdown(hint, baseUrl) || "无",
+            description: finalDescription,
+            input: finalInput,
+            output: finalOutput,
+            examples: finalExamples,
+            hint: finalHint ? "\n\n## 提示\n\n" + finalHint : "",
+            source: finalSource ? "\n\n## 来源\n\n" + finalSource : "",
           }),
         },
       ],

@@ -4,6 +4,25 @@ import { createDocument } from "@mixmark-io/domino";
 import TurndownService from "turndown";
 import { gfm } from "turndown-plugin-gfm";
 
+export function render(template: string, data: Record<string, string>): string {
+  return template.replace(/\{\{(\w+)\}\}/g, (_, key) => data[key] ?? "");
+}
+
+export function fixRelativeLinks(html: string, baseUrl: string): string {
+  // 通用处理函数，判断是否以 http(s) 开头
+  const replacer = (attr: string, path: string): string => {
+    if (/^https?:\/\//i.test(path)) {
+      return `${attr}="${path}"`;
+    }
+    return `${attr}="${baseUrl}${path}"`;
+  };
+  // 处理 href
+  html = html.replace(/(href)=["']([^"']+)["']/gi, (_, attr, path) => replacer(attr, path));
+  // 处理 src
+  html = html.replace(/(src)=["']([^"']+)["']/gi, (_, attr, path) => replacer(attr, path));
+  return html;
+}
+
 const turndownService = new TurndownService({
   hr: "---",
 });
@@ -70,25 +89,6 @@ turndownService.addRule("preWithCodeAndLang", {
     return `\`\`\`${language}\n${strippedText}\n\`\`\``;
   },
 });
-
-export function render(template: string, data: Record<string, string>): string {
-  return template.replace(/\{\{(\w+)\}\}/g, (_, key) => data[key] ?? "");
-}
-
-export function fixRelativeLinks(html: string, baseUrl: string): string {
-  // 通用处理函数，判断是否以 http(s) 开头
-  const replacer = (attr: string, path: string): string => {
-    if (/^https?:\/\//i.test(path)) {
-      return `${attr}="${path}"`;
-    }
-    return `${attr}="${baseUrl}${path}"`;
-  };
-  // 处理 href
-  html = html.replace(/(href)=["']([^"']+)["']/gi, (_, attr, path) => replacer(attr, path));
-  // 处理 src
-  html = html.replace(/(src)=["']([^"']+)["']/gi, (_, attr, path) => replacer(attr, path));
-  return html;
-}
 
 export function decodeHTMLToMarkdown(html: string, baseUrl: string): string {
   html = fixRelativeLinks(html, baseUrl);

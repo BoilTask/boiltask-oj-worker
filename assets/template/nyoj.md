@@ -24,12 +24,4 @@ ProblemParams:
 
 ## 用例
 
-{{examples}}
-
-## 提示
-
-{{hint}}
-
-## 来源
-
-{{source}}
+{{examples}}{{hint}}{{source}}
