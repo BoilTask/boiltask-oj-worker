@@ -46,10 +46,13 @@ export class NyojCrawler extends Crawler {
 
     const finalDescription = decodeHTMLToMarkdown(description, baseUrl);
 
-    let finalInput = input.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    let finalInput = input.replaceAll(/</g, "&lt;").replaceAll(/>/g, "&gt;");
+    finalInput = finalInput.replaceAll("\n", "<br/>");
+    console.log(finalInput);
     finalInput = decodeHTMLToMarkdown(finalInput, baseUrl);
 
-    let finalOutput = output.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    let finalOutput = output.replaceAll(/</g, "&lt;").replaceAll(/>/g, "&gt;");
+    finalOutput = finalOutput.replaceAll("\n", "<br/>");
     finalOutput = decodeHTMLToMarkdown(finalOutput, baseUrl);
 
     const finalHint = decodeHTMLToMarkdown(hint, baseUrl);
