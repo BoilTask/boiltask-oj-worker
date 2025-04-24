@@ -1,4 +1,4 @@
-import { render, decodeHTMLToMarkdown } from "render";
+import { render, decodeHTMLToMarkdown, fixRelativeLinks } from "render";
 import { CrawlerResponse } from "../define";
 import { Crawler } from "../crawler";
 import { ErrorCode } from "../../error/code";
@@ -55,6 +55,8 @@ export class NyojCrawler extends Crawler {
         };
       }
 
+      const finalContent = fixRelativeLinks(content, baseUrl);
+
       const targetUrl = `${baseUrl}p/${acmProblem}`;
       const res = await fetch(targetUrl);
       const buffer = await res.arrayBuffer();
@@ -62,7 +64,7 @@ export class NyojCrawler extends Crawler {
       const $ = cheerio.load(html);
       const timeDiv = $(".bp5-tag.bp5-large.bp5-minimal.problem__tag-item.icon.icon-stopwatch");
       const timeLimit = timeDiv.text();
-      const memoryDiv = $(".bp5-tag.bp5-large.bp5-minimal.problem__tag-item.icon.icon-memory");
+      const memoryDiv = $(".bp5-tag.bp5-large.bp5-minimal.problem__tag-item.icon.icon-comparison");
       const memoryLimit = memoryDiv.text();
 
       const templateText = await this.getTargetTemplateText(request, env, "nyoj-acm");
@@ -78,7 +80,7 @@ export class NyojCrawler extends Crawler {
               problem: problem,
               oj_title: "NYOJ",
               title: title,
-              description: content,
+              description: finalContent,
               timeLimit: timeLimit,
               memoryLimit: memoryLimit,
             }),
