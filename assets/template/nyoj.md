@@ -24,4 +24,4 @@ ProblemParams:
 
 ## 用例
 
-{{examples}}{{hint}}{{source}}
+{{examples}}{{hint}}{{author}}{{source}}

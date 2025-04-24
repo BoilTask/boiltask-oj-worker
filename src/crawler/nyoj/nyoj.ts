@@ -33,7 +33,7 @@ export class NyojCrawler extends Crawler {
       };
     }
 
-    const { title, description, input, output, examples, source, hint } = problemData;
+    const { title, description, input, output, examples, hint, author, source } = problemData;
 
     const templateText = await this.getTemplateText(request, env);
 
@@ -56,6 +56,7 @@ export class NyojCrawler extends Crawler {
     finalOutput = decodeHTMLToMarkdown(finalOutput, baseUrl);
 
     const finalHint = decodeHTMLToMarkdown(hint, baseUrl);
+    const finalAuthor = decodeHTMLToMarkdown(author, baseUrl);
     const finalSource = decodeHTMLToMarkdown(source, baseUrl);
 
     return {
@@ -74,6 +75,7 @@ export class NyojCrawler extends Crawler {
             output: finalOutput,
             examples: finalExamples,
             hint: finalHint ? "\n\n## 提示\n\n" + finalHint : "",
+            author: finalAuthor ? "\n\n## 作者\n\n" + finalAuthor : "",
             source: finalSource ? "\n\n## 来源\n\n" + finalSource : "",
           }),
         },
