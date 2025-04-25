@@ -9,17 +9,18 @@ export function render(template: string, data: Record<string, string>): string {
 }
 
 export function fixRelativeLinks(html: string, baseUrl: string): string {
-  // 通用处理函数，判断是否以 http(s) 开头
-  const replacer = (attr: string, path: string): string => {
-    if (/^https?:\/\//i.test(path)) {
-      return `${attr}="${path}"`;
-    }
+  // 检查是否为绝对 URL（http/https）
+  const isAbsoluteUrl = (path: string): boolean => /^https?:\/\//i.test(path);
+  // HTML: 处理 href 和 src
+  html = html.replace(/(href|src)=["']([^"']+)["']/gi, (_, attr, path) => {
+    if (isAbsoluteUrl(path)) return `${attr}="${path}"`;
     return `${attr}="${baseUrl}${path}"`;
-  };
-  // 处理 href
-  html = html.replace(/(href)=["']([^"']+)["']/gi, (_, attr, path) => replacer(attr, path));
-  // 处理 src
-  html = html.replace(/(src)=["']([^"']+)["']/gi, (_, attr, path) => replacer(attr, path));
+  });
+  // Markdown: 处理图片语法 ![alt](path)
+  html = html.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (match, alt, path) => {
+    if (isAbsoluteUrl(path)) return match;
+    return `![${alt}](${baseUrl}${path})`;
+  });
   return html;
 }
 
@@ -30,16 +31,16 @@ const turndownService = new TurndownService({
 turndownService.use(gfm);
 
 // 自定义规则，把 <em> 和 <i> 转为 *斜体*
-turndownService.addRule('emphasisWithAsterisk', {
-  filter: ['em', 'i'],
+turndownService.addRule("emphasisWithAsterisk", {
+  filter: ["em", "i"],
   replacement: function (content) {
-    return '*' + content + '*';
-  }
+    return "*" + content + "*";
+  },
 });
 
 turndownService.addRule("texSpanToMath", {
   filter: (node) => {
-    return (node.nodeName.toLowerCase() === "span" && node.classList.contains("tex-span"));
+    return node.nodeName.toLowerCase() === "span" && node.classList.contains("tex-span");
   },
   replacement: (content, node) => {
     // 去除所有 <i> 标签
