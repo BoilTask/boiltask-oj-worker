@@ -10,7 +10,7 @@ export class PojCrawler extends Crawler {
 
   async fetchContent(request: Request, env: Env, problemId: string): Promise<CrawlerResponse> {
     const problemKey = `${this.getName()}-${problemId}`;
-    const baseUrl = "http://poj.org/";
+    const baseUrl = "https://web.archive.org/web/http://poj.org/";
     const url = `${baseUrl}problem?id=${problemId}`;
     const res = await fetch(url);
     const buffer = await res.arrayBuffer();
