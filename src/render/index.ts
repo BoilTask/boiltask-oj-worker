@@ -45,35 +45,27 @@ export async function fixAndUploadAllLinks(env: Env, problemKey: string, html: s
       if (!pathMatch) return;
       const originalPath = pathMatch[1];
       const absoluteUrl = isAbsoluteUrl(originalPath) ? originalPath : baseUrl + originalPath;
-
+      let newUrl;
       if (!entry.forceUpload && !absoluteUrl.match(/\.(png|jpe?g|gif|webp)$/i)) {
-        return absoluteUrl;
-      }
-
-      try {
+        newUrl = absoluteUrl;
+      } else {
         const res = await fetch(absoluteUrl);
         const buffer = await res.arrayBuffer();
-
-        // MD5 hash 作为文件名
         const hash = await crypto.subtle.digest("MD5", buffer);
         const hashHex = Array.from(new Uint8Array(hash))
           .map((b) => b.toString(16).padStart(2, "0"))
           .join("");
-
         const r2Key = `${problemKey}/${hashHex}`;
         await env.BOILTASK_OJ_BUCKET.put(r2Key, buffer);
+        newUrl = `https://r2-oj.boiltask.com/${r2Key}`;
+      }
 
-        const newUrl = `https://r2-oj.boiltask.com/${r2Key}`;
-
-        if (/^(src|href)=/.test(raw)) {
-          const attr = raw.split("=")[0];
-          entry.replacement = `${attr}="${newUrl}"`;
-        } else {
-          const alt = /\[([^\]]*)\]/.exec(raw)?.[1] ?? "";
-          entry.replacement = `![${alt}](${newUrl})`;
-        }
-      } catch (err) {
-        console.error("上传失败：", err);
+      if (/^(src|href)=/.test(raw)) {
+        const attr = raw.split("=")[0];
+        entry.replacement = `${attr}="${newUrl}"`;
+      } else {
+        const alt = /\[([^\]]*)\]/.exec(raw)?.[1] ?? "";
+        entry.replacement = `![${alt}](${newUrl})`;
       }
     })
   );
