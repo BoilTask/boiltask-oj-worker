@@ -14,7 +14,7 @@ export class PojCrawler extends Crawler {
     const url = `${baseUrl}problem?id=${problemId}`;
     const res = await fetch(url);
     const buffer = await res.arrayBuffer();
-    const decoder = new TextDecoder("gbk");
+    const decoder = new TextDecoder("utf-8");
     const html = decoder.decode(buffer);
 
     const $ = cheerio.load(html);
