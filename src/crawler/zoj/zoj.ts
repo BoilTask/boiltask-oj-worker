@@ -1,6 +1,7 @@
 import { decodeHTMLToMarkdown, render } from "render";
 import { CrawlerResponse } from "../define";
 import { Crawler } from "../crawler";
+import { ErrorCode } from "../../error/code";
 
 export class ZojCrawler extends Crawler {
   getName() {
@@ -14,6 +15,12 @@ export class ZojCrawler extends Crawler {
       method: "GET",
       redirect: "manual",
     });
+    if (vjudgeRes.status !== 200) {
+      return {
+        code: ErrorCode.OjError,
+        data: "Failed to fetch problem page",
+      };
+    }
     const url = vjudgeRes.headers.get("location");
 
     const apiUrlRegex = /https:\/\/pintia\.cn\/problem-sets\/(\d+)\/exam\/problems\/type\/\d+\?problemSetProblemId=(\d+)/;
@@ -47,6 +54,12 @@ export class ZojCrawler extends Crawler {
       body: null,
       method: "GET",
     });
+    if (problemJsonResponse.status !== 200) {
+      return {
+        code: ErrorCode.OjError,
+        data: "Failed to fetch problem page",
+      };
+    }
 
     const problemJsonData = (await problemJsonResponse.json()) as any;
 

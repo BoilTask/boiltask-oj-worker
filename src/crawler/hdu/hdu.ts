@@ -2,6 +2,7 @@ import { render, decodeHTMLToMarkdown } from "render";
 import { CrawlerResponse } from "../define";
 import { Crawler } from "../crawler";
 import * as cheerio from "cheerio";
+import { ErrorCode } from "../../error/code";
 
 export class HduCrawler extends Crawler {
   getName() {
@@ -14,6 +15,12 @@ export class HduCrawler extends Crawler {
     const baseUrl = "https://acm.hdu.edu.cn/";
     const url = `${baseUrl}showproblem.php?pid=${problemId}`;
     const res = await fetch(url);
+    if (res.status !== 200) {
+      return {
+        code: ErrorCode.OjError,
+        data: "Failed to fetch problem page",
+      };
+    }
     const buffer = await res.arrayBuffer();
     const decoder = new TextDecoder("gbk");
     const html = decoder.decode(buffer);

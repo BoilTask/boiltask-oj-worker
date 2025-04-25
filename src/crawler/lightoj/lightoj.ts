@@ -2,6 +2,7 @@ import { decodeHTMLToMarkdown, render } from "render";
 import { CrawlerResponse } from "../define";
 import { Crawler } from "../crawler";
 import * as cheerio from "cheerio";
+import { ErrorCode } from "../../error/code";
 
 export class LightojCrawler extends Crawler {
   getName() {
@@ -13,6 +14,12 @@ export class LightojCrawler extends Crawler {
     const baseUrl = "https://lightoj.com/";
     const url = `${baseUrl}problem/${problemId}`;
     const res = await fetch(url);
+    if (res.status !== 200) {
+      return {
+        code: ErrorCode.OjError,
+        data: "Failed to fetch problem page",
+      };
+    }
     const buffer = await res.arrayBuffer();
 
     const decoder = new TextDecoder("utf-8");

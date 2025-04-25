@@ -1,6 +1,7 @@
 import { CrawlerResponse } from "../define";
 import { Crawler } from "../crawler";
 import { render } from "render";
+import { ErrorCode } from "../../error/code";
 
 export class UvaCrawler extends Crawler {
   getName() {
@@ -18,6 +19,12 @@ export class UvaCrawler extends Crawler {
     });
     const uvaUrl = res.headers.get("location");
     const uvaRes = await fetch(uvaUrl);
+    if (uvaRes.status !== 200) {
+      return {
+        code: ErrorCode.OjError,
+        data: "Failed to fetch problem page",
+      };
+    }
     const buffer = await uvaRes.arrayBuffer();
     const decoder = new TextDecoder("utf-8");
     const html = decoder.decode(buffer);
@@ -34,6 +41,12 @@ export class UvaCrawler extends Crawler {
     const downloadUrl = baseUrl + pdfUrl[1];
 
     const pdfResponse = await fetch(downloadUrl);
+    if (pdfResponse.status !== 200) {
+      return {
+        code: ErrorCode.OjError,
+        data: "Failed to fetch problem page",
+      };
+    }
     const fileBuffer = await pdfResponse.arrayBuffer();
     const fileName = downloadUrl.split("/").pop();
     const r2Path = `uva-${problemId}/${fileName}`;

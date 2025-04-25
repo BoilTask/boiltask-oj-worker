@@ -2,6 +2,7 @@ import { render, decodeHTMLToMarkdown } from "render";
 import { CrawlerResponse } from "../define";
 import { Crawler } from "../crawler";
 import * as cheerio from "cheerio";
+import { ErrorCode } from "../../error/code";
 
 export class CodeforcesCrawler extends Crawler {
   getName() {
@@ -28,6 +29,12 @@ export class CodeforcesCrawler extends Crawler {
     };
     const url = `${baseUrl}/problemset/problem/${contestId}/${problemName}`;
     const res = await fetch(url, requestOptions);
+    if (res.status !== 200) {
+      return {
+        code: ErrorCode.OjError,
+        data: "Failed to fetch problem page",
+      };
+    }
     const buffer = await res.arrayBuffer();
     const html = new TextDecoder("utf-8").decode(buffer);
 

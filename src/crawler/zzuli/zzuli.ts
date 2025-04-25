@@ -2,6 +2,7 @@ import { render, decodeHTMLToMarkdown } from "render";
 import { CrawlerResponse } from "../define";
 import { Crawler } from "../crawler";
 import * as cheerio from "cheerio";
+import { ErrorCode } from "../../error/code";
 
 export class ZzuliCrawler extends Crawler {
   getName() {
@@ -13,6 +14,12 @@ export class ZzuliCrawler extends Crawler {
     const baseUrl = "https://web.archive.org/web/http://acm.zzuli.edu.cn/";
     const url = `${baseUrl}problem.php?id=${problemId}`;
     const res = await fetch(url);
+    if (res.status !== 200) {
+      return {
+        code: ErrorCode.OjError,
+        data: "Failed to fetch problem page",
+      };
+    }
     const buffer = await res.arrayBuffer();
 
     // archive.org 页面通常转为 UTF-8

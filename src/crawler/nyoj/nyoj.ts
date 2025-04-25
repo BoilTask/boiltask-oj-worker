@@ -34,6 +34,12 @@ export class NyojCrawler extends Crawler {
         body: JSON.stringify(postData),
       };
       const resJson = await fetch(apiUrl, options);
+      if (resJson.status !== 200) {
+        return {
+          code: ErrorCode.OjError,
+          data: "Failed to fetch problem page",
+        };
+      }
       const json = (await resJson.json()) as any;
       if (json.errors) {
         return {
@@ -96,6 +102,12 @@ export class NyojCrawler extends Crawler {
 
     const targetUrl = `${baseUrl}api/get-problem-detail?problemId=` + problemId;
     const res = await fetch(targetUrl);
+    if (res.status !== 200) {
+      return {
+        code: ErrorCode.OjError,
+        data: "Failed to fetch problem page",
+      };
+    }
     const json = (await res.json()) as any;
 
     if (json.status != 200) {
