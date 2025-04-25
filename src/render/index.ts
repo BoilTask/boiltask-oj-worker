@@ -29,10 +29,17 @@ const turndownService = new TurndownService({
 
 turndownService.use(gfm);
 
+// 自定义规则，把 <em> 和 <i> 转为 *斜体*
+turndownService.addRule('emphasisWithAsterisk', {
+  filter: ['em', 'i'],
+  replacement: function (content) {
+    return '*' + content + '*';
+  }
+});
+
 turndownService.addRule("texSpanToMath", {
   filter: (node) => {
-    return (node.nodeName.toLowerCase() === "span" && node.classList.contains("tex-span"))
-      || node.nodeName.toLowerCase() === "b";
+    return (node.nodeName.toLowerCase() === "span" && node.classList.contains("tex-span"));
   },
   replacement: (content, node) => {
     // 去除所有 <i> 标签

@@ -128,7 +128,7 @@ export class NyojCrawler extends Crawler {
       .replace(/<\/output>/g, "</pre><br/>");
     finalExamples = decodeHTMLToMarkdown(finalExamples, baseUrl);
 
-    const finalDescription = decodeHTMLToMarkdown(description, baseUrl);
+    const finalDescription = fixRelativeLinks(description, baseUrl);
 
     let finalInput = input.replaceAll(/</g, "&lt;").replaceAll(/>/g, "&gt;");
     finalInput = finalInput.replaceAll("\n", "<br/>");
