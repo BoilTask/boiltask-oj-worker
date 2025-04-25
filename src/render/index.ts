@@ -31,29 +31,8 @@ turndownService.use(gfm);
 
 turndownService.addRule("texSpanToMath", {
   filter: (node) => {
-    return node.nodeName.toLowerCase() === "span";
-  },
-  replacement: (content, node) => {
-    content = node.textContent;
-    const subs = node.querySelectorAll("sub");
-    for (let i = 0; i < subs.length; i++) {
-      const subText = subs[i].textContent;
-      // 替换所有相同 sub 内容
-      content = content.replace(subText, `_{${subText}}`);
-    }
-    const sups = node.querySelectorAll("sup");
-    for (let i = 0; i < sups.length; i++) {
-      const supText = sups[i].textContent;
-      // 替换所有相同 sup 内容
-      content = content.replace(supText, `^{${supText}}`);
-    }
-    return `$${content}$`;
-  },
-});
-
-turndownService.addRule("texSpanToMath", {
-  filter: (node) => {
-    return node.nodeName.toLowerCase() === "span" && node.classList.contains("tex-span");
+    return (node.nodeName.toLowerCase() === "span" && node.classList.contains("tex-span"))
+      || node.nodeName.toLowerCase() === "b";
   },
   replacement: (content, node) => {
     // 去除所有 <i> 标签
@@ -68,6 +47,21 @@ turndownService.addRule("texSpanToMath", {
         parent.removeChild(tag);
       }
     }
+    content = node.textContent;
+    const subs = node.querySelectorAll("sub");
+    for (let i = 0; i < subs.length; i++) {
+      const subText = subs[i].textContent;
+      // 替换所有相同 sub 内容
+      content = content.replace(subText, `_{${subText}}`);
+    }
+
+    const sups = node.querySelectorAll("sup");
+    for (let i = 0; i < sups.length; i++) {
+      const supText = sups[i].textContent;
+      // 替换所有相同 sup 内容
+      content = content.replace(supText, `^{${supText}}`);
+    }
+
     return `$${content}$`;
   },
 });
