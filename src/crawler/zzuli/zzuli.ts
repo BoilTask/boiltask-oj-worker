@@ -40,15 +40,15 @@ export class ZzuliCrawler extends Crawler {
     let currentSection = "";
 
     const panels = $(".panel.panel-default");
-    const promises = panels.map(async (_, el) => {
-      const heading = $(el).find(".panel-heading").first().text().trim();
-      const content = $(el).find(".panel-body.content").first().html()?.trim() || "";
+    for (const el of panels) {
+      const $el = $(el);
+      const heading = $el.find(".panel-heading").first().text().trim();
+      const content = $el.find(".panel-body.content").first().html()?.trim() || "";
       if (heading && content) {
         currentSection = heading.replace(/[\s:：]/g, "").toLowerCase(); // 标准化 key
         contentMap[currentSection] = await decodeHTMLToMarkdown(env, problemKey, content, baseUrl);
       }
-    });
-    await Promise.all(promises);
+    }
 
     // 特别处理样例输入输出（因为它们是 <span id="sampleinput"> 而不是一般结构）
     const rawSampleInput = $("#sampleinput").html().trim();

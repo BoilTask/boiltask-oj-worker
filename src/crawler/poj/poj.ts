@@ -32,15 +32,14 @@ export class PojCrawler extends Crawler {
     let currentSection = "";
 
     const panels = $(".pst, .ptx");
-    const promises = panels.map(async (_, el) => {
+    for (const el of panels) {
       const $el = $(el);
       if ($el.hasClass("pst")) {
-        currentSection = await decodeHTMLToMarkdown(env, problemKey, $el.text().trim(), baseUrl);
+        currentSection = await decodeHTMLToMarkdown(env, problemId, $el.text().trim(), baseUrl);
       } else if ($el.hasClass("ptx")) {
-        contentMap[currentSection] = await decodeHTMLToMarkdown(env, problemKey, $el.html().trim(), baseUrl);
+        contentMap[currentSection] = await decodeHTMLToMarkdown(env, problemId, $el.html().trim(), baseUrl);
       }
-    });
-    await Promise.all(promises);
+    }
 
     const sourceDivs = $(".sio");
     const sampleInput = "```\n" + sourceDivs.eq(0).text() + "\n```";

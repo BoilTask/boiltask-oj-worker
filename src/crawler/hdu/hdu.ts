@@ -33,15 +33,14 @@ export class HduCrawler extends Crawler {
     let currentSection = "";
 
     const panels = $(".panel_title, .panel_content");
-    const promises = panels.map(async (_, el) => {
+    for (const el of panels) {
       const $el = $(el);
       if ($el.hasClass("panel_title")) {
-        currentSection = await decodeHTMLToMarkdown(env, problemKey, $el.text().trim(), baseUrl);
+        currentSection = await decodeHTMLToMarkdown(env, problemId, $el.text().trim(), baseUrl);
       } else if ($el.hasClass("panel_content")) {
-        contentMap[currentSection] = await decodeHTMLToMarkdown(env, problemKey, $el.html().trim(), baseUrl);
+        contentMap[currentSection] = await decodeHTMLToMarkdown(env, problemId, $el.html().trim(), baseUrl);
       }
-    });
-    await Promise.all(promises);
+    }
 
     const templateText = await this.getTemplateText(request, env); // 你已有的方法
 
