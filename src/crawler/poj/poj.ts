@@ -9,6 +9,7 @@ export class PojCrawler extends Crawler {
   }
 
   async fetchContent(request: Request, env: Env, problemId: string): Promise<CrawlerResponse> {
+    const problemKey = `${this.getName()}-${problemId}`;
     const baseUrl = "http://poj.org/";
     const url = `${baseUrl}problem?id=${problemId}`;
     const res = await fetch(url);
@@ -29,14 +30,17 @@ export class PojCrawler extends Crawler {
 
     const contentMap: Record<string, string> = {};
     let currentSection = "";
-    $(".pst, .ptx").each((_, el) => {
+
+    const panels = $(".pst, .ptx");
+    const promises = panels.map(async (_, el) => {
       const $el = $(el);
       if ($el.hasClass("pst")) {
-        currentSection = decodeHTMLToMarkdown($el.text().trim(), baseUrl);
+        currentSection = await decodeHTMLToMarkdown(env, problemKey, $el.text().trim(), baseUrl);
       } else if ($el.hasClass("ptx")) {
-        contentMap[currentSection] = decodeHTMLToMarkdown($el.html().trim(), baseUrl);
+        contentMap[currentSection] = await decodeHTMLToMarkdown(env, problemKey, $el.html().trim(), baseUrl);
       }
     });
+    await Promise.all(promises);
 
     const sourceDivs = $(".sio");
     const sampleInput = "```\n" + sourceDivs.eq(0).text() + "\n```";

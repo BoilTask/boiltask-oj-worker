@@ -9,6 +9,7 @@ export class LightojCrawler extends Crawler {
   }
 
   async fetchContent(request: Request, env: Env, problemId: string): Promise<CrawlerResponse> {
+    const problemKey = `${this.getName()}-${problemId}`;
     const baseUrl = "https://lightoj.com/";
     const url = `${baseUrl}problem/${problemId}`;
     const res = await fetch(url);
@@ -29,14 +30,14 @@ export class LightojCrawler extends Crawler {
 
     const markdownBody = cardDiv.find(".markdown-body");
 
-    const description = decodeHTMLToMarkdown(markdownBody.eq(0).html(), baseUrl);
-    const input = decodeHTMLToMarkdown(markdownBody.eq(1).html(), baseUrl);
-    const output = decodeHTMLToMarkdown(markdownBody.eq(2).html(), baseUrl);
+    const description = await decodeHTMLToMarkdown(env, problemKey, markdownBody.eq(0).html(), baseUrl);
+    const input = await decodeHTMLToMarkdown(env, problemKey, markdownBody.eq(1).html(), baseUrl);
+    const output = await decodeHTMLToMarkdown(env, problemKey, markdownBody.eq(2).html(), baseUrl);
 
     let hint = null;
     const hintElement = cardDiv.find(".post-text > div").eq(4);
     if (hintElement.html()) {
-      hint = decodeHTMLToMarkdown(hintElement.find(".markdown-body").html(), baseUrl);
+      hint = await decodeHTMLToMarkdown(env, problemKey, hintElement.find(".markdown-body").html(), baseUrl);
     }
 
     const sampleBody = cardDiv.find(".dataset-container");

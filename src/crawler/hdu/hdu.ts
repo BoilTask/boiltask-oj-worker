@@ -9,6 +9,8 @@ export class HduCrawler extends Crawler {
   }
 
   async fetchContent(request: Request, env: Env, problemId: string): Promise<CrawlerResponse> {
+    const problemKey = `${this.getName()}-${problemId}`;
+
     const baseUrl = "https://acm.hdu.edu.cn/";
     const url = `${baseUrl}showproblem.php?pid=${problemId}`;
     const res = await fetch(url);
@@ -22,22 +24,24 @@ export class HduCrawler extends Crawler {
 
     const tbodyText = $("tbody").text();
 
-    const limitMatch  = tbodyText.match(/Time Limit: ([\s\S]+?) \(Java\/Others\)\s+Memory Limit: ([\s\S]+?) \(Java\/Others\)/);
+    const limitMatch = tbodyText.match(/Time Limit: ([\s\S]+?) \(Java\/Others\)\s+Memory Limit: ([\s\S]+?) \(Java\/Others\)/);
 
-    const timeLimit = (limitMatch ? limitMatch[1] : "?");
-    const memoryLimit = (limitMatch ? limitMatch[2] : "?");
+    const timeLimit = limitMatch ? limitMatch[1] : "?";
+    const memoryLimit = limitMatch ? limitMatch[2] : "?";
 
     const contentMap: Record<string, string> = {};
     let currentSection = "";
 
-    $(".panel_title, .panel_content").each((_, el) => {
+    const panels = $(".panel_title, .panel_content");
+    const promises = panels.map(async (_, el) => {
       const $el = $(el);
       if ($el.hasClass("panel_title")) {
-        currentSection = decodeHTMLToMarkdown($el.text().trim(), baseUrl);
+        currentSection = await decodeHTMLToMarkdown(env, problemKey, $el.text().trim(), baseUrl);
       } else if ($el.hasClass("panel_content")) {
-        contentMap[currentSection] = decodeHTMLToMarkdown($el.html().trim(), baseUrl);
+        contentMap[currentSection] = await decodeHTMLToMarkdown(env, problemKey, $el.html().trim(), baseUrl);
       }
     });
+    await Promise.all(promises);
 
     const templateText = await this.getTemplateText(request, env); // 你已有的方法
 

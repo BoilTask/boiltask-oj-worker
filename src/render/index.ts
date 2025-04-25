@@ -3,25 +3,93 @@
 import { createDocument } from "@mixmark-io/domino";
 import TurndownService from "turndown";
 import { gfm } from "turndown-plugin-gfm";
+import crypto from "crypto";
 
 export function render(template: string, data: Record<string, string>): string {
   return template.replace(/\{\{(\w+)\}\}/g, (_, key) => data[key] ?? "");
 }
 
-export function fixRelativeLinks(html: string, baseUrl: string): string {
-  // 检查是否为绝对 URL（http/https）
+export async function fixAndUploadAllLinks(env: Env, problemKey: string, html: string, baseUrl: string): Promise<string> {
   const isAbsoluteUrl = (path: string): boolean => /^https?:\/\//i.test(path);
-  // HTML: 处理 href 和 src
-  html = html.replace(/(href|src)=["']([^"']+)["']/gi, (_, attr, path) => {
-    if (isAbsoluteUrl(path)) return `${attr}="${path}"`;
-    return `${attr}="${baseUrl}${path}"`;
-  });
-  // Markdown: 处理图片语法 ![alt](path)
-  html = html.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (match, alt, path) => {
-    if (isAbsoluteUrl(path)) return match;
-    return `![${alt}](${baseUrl}${path})`;
-  });
-  return html;
+
+  type Replacement = {
+    start: number;
+    end: number;
+    replacement: string;
+    forceUpload: boolean;
+  };
+
+  const replacements: Replacement[] = [];
+
+  const collectLinks = (pattern: RegExp, forceUpload: bool) => {
+    html.replace(pattern, (match, ...args) => {
+      const offset = args[args.length - 2]; // match offset 是倒数第二个参数
+      replacements.push({
+        start: offset,
+        end: offset + match.length,
+        replacement: "",
+        forceUpload: forceUpload,
+      });
+      return match;
+    });
+  };
+
+  collectLinks(/src=["']([^"']+)["']/gi, true);
+  collectLinks(/!\[([^\]]*)\]\(([^)]+)\)/g, true);
+  collectLinks(/href=["']([^"']+)["']/gi, false);
+
+  await Promise.all(
+    replacements.map(async (entry) => {
+      const raw = html.slice(entry.start, entry.end);
+      const pathMatch = /["']([^"']+)["']/.exec(raw) || /\(([^)]+)\)/.exec(raw);
+      if (!pathMatch) return;
+      const originalPath = pathMatch[1];
+      const absoluteUrl = isAbsoluteUrl(originalPath) ? originalPath : baseUrl + originalPath;
+
+      if (!entry.forceUpload && !absoluteUrl.match(/\.(png|jpe?g|gif|webp)$/i)) {
+        return absoluteUrl;
+      }
+
+      try {
+        const res = await fetch(absoluteUrl);
+        const buffer = await res.arrayBuffer();
+
+        // MD5 hash 作为文件名
+        const hash = await crypto.subtle.digest("MD5", buffer);
+        const hashHex = Array.from(new Uint8Array(hash))
+          .map((b) => b.toString(16).padStart(2, "0"))
+          .join("");
+
+        const r2Key = `${problemKey}/${hashHex}`;
+        await env.BOILTASK_OJ_BUCKET.put(r2Key, buffer);
+
+        const newUrl = `https://r2-oj.boiltask.com/${r2Key}`;
+
+        if (/^(src|href)=/.test(raw)) {
+          const attr = raw.split("=")[0];
+          entry.replacement = `${attr}="${newUrl}"`;
+        } else {
+          const alt = /\[([^\]]*)\]/.exec(raw)?.[1] ?? "";
+          entry.replacement = `![${alt}](${newUrl})`;
+        }
+      } catch (err) {
+        console.error("上传失败：", err);
+      }
+    })
+  );
+
+  // 按顺序合并替换结果
+  replacements.sort((a, b) => a.start - b.start);
+  let result = "";
+  let lastIndex = 0;
+
+  for (const r of replacements) {
+    result += html.slice(lastIndex, r.start) + r.replacement;
+    lastIndex = r.end;
+  }
+  result += html.slice(lastIndex); // append剩下的部分
+
+  return result;
 }
 
 const turndownService = new TurndownService({
@@ -99,7 +167,7 @@ turndownService.addRule("preWithCodeAndLang", {
   },
 });
 
-export function decodeHTMLToMarkdown(html: string, baseUrl: string): string {
-  html = fixRelativeLinks(html, baseUrl);
+export async function decodeHTMLToMarkdown(env: Env, problem: string, html: string, baseUrl: string): Promise<string> {
+  html = await fixAndUploadAllLinks(env, problem, html, baseUrl);
   return turndownService.turndown(createDocument(html));
 }

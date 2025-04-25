@@ -1,4 +1,4 @@
-import { render, decodeHTMLToMarkdown, fixRelativeLinks } from "render";
+import { render, decodeHTMLToMarkdown, fixAndUploadAllLinks } from "render";
 import { CrawlerResponse } from "../define";
 import { Crawler } from "../crawler";
 import { ErrorCode } from "../../error/code";
@@ -9,10 +9,11 @@ export class NyojCrawler extends Crawler {
     return "nyoj";
   }
 
-  async fetchContent(request: Request, env: Env, problem: string): Promise<CrawlerResponse> {
+  async fetchContent(request: Request, env: Env, problemId: string): Promise<CrawlerResponse> {
+    const problemKey = `${this.getName()}-${problemId}`;
     const acmFlag = "acm-";
-    if (problem.startsWith(acmFlag)) {
-      const acmProblem = problem.substring(acmFlag.length);
+    if (problemId.startsWith(acmFlag)) {
+      const acmProblem = problemId.substring(acmFlag.length);
       const baseUrl = "https://acm.nyist.edu.cn/";
       const apiUrl = `${baseUrl}api`;
       const postData = {
@@ -55,7 +56,7 @@ export class NyojCrawler extends Crawler {
         };
       }
 
-      const finalContent = fixRelativeLinks(content, baseUrl);
+      const finalContent = await fixAndUploadAllLinks(env, problemKey, content, baseUrl);
 
       const targetUrl = `${baseUrl}p/${acmProblem}`;
       const res = await fetch(targetUrl);
@@ -74,10 +75,10 @@ export class NyojCrawler extends Crawler {
         title: title,
         github_contents: [
           {
-            path: `content/problem/nyoj/${problem}/index.md`,
+            path: `content/problem/nyoj/${problemId}/index.md`,
             content: render(templateText, {
               oj: "nyoj",
-              problem: problem,
+              problem: problemId,
               oj_title: "NYOJ",
               title: title,
               description: finalContent,
@@ -93,7 +94,7 @@ export class NyojCrawler extends Crawler {
 
     // {"query":"query {\n  problem(pid: \"135\") {\n    _id\n    title\n    content\n  }\n}"}
 
-    const targetUrl = `${baseUrl}api/get-problem-detail?problemId=` + problem;
+    const targetUrl = `${baseUrl}api/get-problem-detail?problemId=` + problemId;
     const res = await fetch(targetUrl);
     const json = (await res.json()) as any;
 
@@ -126,21 +127,21 @@ export class NyojCrawler extends Crawler {
       .replace(/<\/input>/g, "</pre><br/>")
       .replace(/<output>/g, "<h3>用例输出</h3><pre>")
       .replace(/<\/output>/g, "</pre><br/>");
-    finalExamples = decodeHTMLToMarkdown(finalExamples, baseUrl);
+    finalExamples = await decodeHTMLToMarkdown(env, problemKey, finalExamples, baseUrl);
 
-    const finalDescription = fixRelativeLinks(description, baseUrl);
+    const finalDescription = await fixAndUploadAllLinks(env, problemKey, description, baseUrl);
 
     let finalInput = input.replaceAll(/</g, "&lt;").replaceAll(/>/g, "&gt;");
     finalInput = finalInput.replaceAll("\n", "<br/>");
-    finalInput = decodeHTMLToMarkdown(finalInput, baseUrl);
+    finalInput = await decodeHTMLToMarkdown(env, problemKey, finalInput, baseUrl);
 
     let finalOutput = output.replaceAll(/</g, "&lt;").replaceAll(/>/g, "&gt;");
     finalOutput = finalOutput.replaceAll("\n", "<br/>");
-    finalOutput = decodeHTMLToMarkdown(finalOutput, baseUrl);
+    finalOutput = await decodeHTMLToMarkdown(env, problemKey, finalOutput, baseUrl);
 
-    const finalHint = decodeHTMLToMarkdown(hint, baseUrl);
-    const finalAuthor = decodeHTMLToMarkdown(author, baseUrl);
-    const finalSource = decodeHTMLToMarkdown(source, baseUrl);
+    const finalHint = await decodeHTMLToMarkdown(env, problemKey, hint, baseUrl);
+    const finalAuthor = await decodeHTMLToMarkdown(env, problemKey, author, baseUrl);
+    const finalSource = await decodeHTMLToMarkdown(env, problemKey, source, baseUrl);
 
     const templateText = await this.getTemplateText(request, env);
     return {
@@ -148,12 +149,12 @@ export class NyojCrawler extends Crawler {
       title: title,
       github_contents: [
         {
-          path: `content/problem/nyoj/${problem}/index.md`,
+          path: `content/problem/nyoj/${problemId}/index.md`,
           content: render(templateText, {
             oj: "nyoj",
-            problem: problem,
+            problem: problemId,
             oj_title: "NYOJ",
-            title: decodeHTMLToMarkdown(title, baseUrl),
+            title: await decodeHTMLToMarkdown(env, problemKey, title, baseUrl),
             timeLimit: finalTimeLimit,
             memoryLimit: finalMemoryLimit,
             description: finalDescription,

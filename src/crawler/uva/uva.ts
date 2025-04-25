@@ -8,6 +8,7 @@ export class UvaCrawler extends Crawler {
   }
 
   async fetchContent(request: Request, env: Env, problemId: string): Promise<CrawlerResponse> {
+    const problemKey = `${this.getName()}-${problemId}`;
     const baseUrl = "https://uva.onlinejudge.org/";
 
     const vjudgeUrl = `https://vjudge.net/problem/UVA-${problemId}/origin`;

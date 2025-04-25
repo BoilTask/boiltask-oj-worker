@@ -6,6 +6,7 @@ import { LightojCrawler } from "./lightoj/lightoj";
 import { UvaCrawler } from "./uva/uva";
 import { PojCrawler } from "./poj/poj";
 import { CodeforcesCrawler } from "./codeforces/codeforces";
+import { ZojCrawler } from "./zoj/zoj";
 
 const spiderRegistry = {
   nyoj: NyojCrawler,
@@ -15,6 +16,7 @@ const spiderRegistry = {
   uva: UvaCrawler,
   poj: PojCrawler,
   codeforces: CodeforcesCrawler,
+  zoj: ZojCrawler,
 };
 
 export function GetOjCrawler(oj: string): Crawler {

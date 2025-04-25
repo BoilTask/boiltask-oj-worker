@@ -9,6 +9,7 @@ export class ZzuliCrawler extends Crawler {
   }
 
   async fetchContent(request: Request, env: Env, problemId: string): Promise<CrawlerResponse> {
+    const problemKey = `${this.getName()}-${problemId}`;
     const baseUrl = "https://web.archive.org/web/http://acm.zzuli.edu.cn/";
     const url = `${baseUrl}problem.php?id=${problemId}`;
     const res = await fetch(url);
@@ -29,7 +30,7 @@ export class ZzuliCrawler extends Crawler {
 
     // 提取时间与内存限制
     const centerText = $("center").first().text();
-    const timeLimitMatch  = centerText.match(/时间限制:\s*(\d+)/);
+    const timeLimitMatch = centerText.match(/时间限制:\s*(\d+)/);
     const memoryLimitMatch = centerText.match(/内存限制:\s*(\d+)/);
 
     const timeLimit = (timeLimitMatch ? timeLimitMatch[1] : "?") + " Sec";
@@ -38,15 +39,16 @@ export class ZzuliCrawler extends Crawler {
     const contentMap: Record<string, string> = {};
     let currentSection = "";
 
-    // 抓取题面部分（题目描述 / 输入 / 输出 / 提示 等）
-    $(".panel.panel-default").each((_, panel) => {
-      const heading = $(panel).find(".panel-heading").first().text().trim();
-      const content = $(panel).find(".panel-body.content").first().html()?.trim() || "";
+    const panels = $(".panel.panel-default");
+    const promises = panels.map(async (_, el) => {
+      const heading = $(el).find(".panel-heading").first().text().trim();
+      const content = $(el).find(".panel-body.content").first().html()?.trim() || "";
       if (heading && content) {
         currentSection = heading.replace(/[\s:：]/g, "").toLowerCase(); // 标准化 key
-        contentMap[currentSection] = decodeHTMLToMarkdown(content, baseUrl);
+        contentMap[currentSection] = await decodeHTMLToMarkdown(env, problemKey, content, baseUrl);
       }
     });
+    await Promise.all(promises);
 
     // 特别处理样例输入输出（因为它们是 <span id="sampleinput"> 而不是一般结构）
     const rawSampleInput = $("#sampleinput").html().trim();
