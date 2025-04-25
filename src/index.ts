@@ -32,7 +32,8 @@ export default {
       if (!ojCrawler) {
         return NewResponse(ErrorCode.OjNotSupport, "Unsupported OJ");
       }
-
+      const problemKey = `${oj}-${problem}`;
+      await deleteR2Prefix(env, problemKey);
       const responseContent = await ojCrawler.fetchContent(request, env, problem);
       if (responseContent.code !== ErrorCode.Success) {
         return NewResponse(responseContent.code, responseContent.data);
