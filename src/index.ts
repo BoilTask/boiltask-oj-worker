@@ -3,6 +3,7 @@ import { MetaRequest } from "./request/define";
 import { ErrorCode } from "./error/code";
 import { GetOjCrawler } from "./crawler/library";
 import { commitFilesToGitHub } from "./library/github";
+import { deleteR2Prefix } from "./r2";
 
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
@@ -49,7 +50,7 @@ export default {
 
       return NewResponse(ErrorCode.Success, uploadResult);
     } catch (err) {
-      console.log(err)
+      console.log(err);
       return NewResponse(ErrorCode.CommonError, err);
     }
   },
