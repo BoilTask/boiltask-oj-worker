@@ -90,6 +90,26 @@ const turndownService = new TurndownService({
 
 turndownService.use(gfm);
 
+// 如果有center，保留这个标签，并且内部也不转换markdown了，因为兼容性较差
+turndownService.addRule("center", {
+  filter: (node) => {
+    return node.nodeName.toLowerCase() === "center";
+  },
+  replacement: function (content, node) {
+    return "<div style=\"text-align: center;\">" + node.innerHTML + "</div>";
+  },
+});
+
+// 如果存在b标签，则标签内的所有的html标签都不转义了
+turndownService.addRule("ignoreHtml", {
+  filter: (node) => {
+    return node.nodeName.toLowerCase() === "b";
+  },
+  replacement: function (content, node) {
+    return "**" + node.innerHTML + "**";
+  },
+});
+
 // 自定义规则，把 <em> 和 <i> 转为 *斜体*
 turndownService.addRule("emphasisWithAsterisk", {
   filter: ["em", "i"],
