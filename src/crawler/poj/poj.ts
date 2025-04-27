@@ -32,9 +32,9 @@ export class PojCrawler extends Crawler {
     const bodyText = $("body").html();
 
     const timeLimitMatch = bodyText.match(/<td><b>Time Limit:<\/b> ([\s\S]+?)<\/td>/);
-    const timeLimit = timeLimitMatch ? timeLimitMatch[1] : "?";
+    const timeLimit = timeLimitMatch ? timeLimitMatch[1].trim() : "?";
     const memoryLimitMatch = bodyText.match(/<td[\s\S]*><b>Memory Limit:<\/b> ([\s\S]+?)<\/td>/);
-    const memoryLimit = memoryLimitMatch ? memoryLimitMatch[1] : "?";
+    const memoryLimit = memoryLimitMatch ? memoryLimitMatch[1].trim() : "?";
 
     const contentMap: Record<string, string> = {};
     let currentSection = "";
