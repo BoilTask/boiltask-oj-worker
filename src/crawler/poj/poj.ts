@@ -11,7 +11,7 @@ export class PojCrawler extends Crawler {
 
   async fetchContent(request: Request, env: Env, problemId: string): Promise<CrawlerResponse> {
     const problemKey = `${this.getName()}-${problemId}`;
-    const baseUrl = "https://web.archive.org/web/http://poj.org/";
+    const baseUrl = "http://poj.org/";
     const url = `${baseUrl}problem?id=${problemId}`;
     const res = await fetch(url);
     if (res.status !== 200) {
@@ -43,9 +43,9 @@ export class PojCrawler extends Crawler {
     for (const el of panels) {
       const $el = $(el);
       if ($el.hasClass("pst")) {
-        currentSection = await decodeHTMLToMarkdown(env, problemId, $el.text().trim(), baseUrl);
+        currentSection = await decodeHTMLToMarkdown(env, problemKey, $el.text().trim(), baseUrl);
       } else if ($el.hasClass("ptx")) {
-        contentMap[currentSection] = await decodeHTMLToMarkdown(env, problemId, $el.html().trim(), baseUrl);
+        contentMap[currentSection] = await decodeHTMLToMarkdown(env, problemKey, $el.html().trim(), baseUrl);
       }
     }
 
