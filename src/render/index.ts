@@ -175,7 +175,7 @@ turndownService.addRule("preWithCodeAndLang", {
     // 去除其余的 HTML 标签，仅保留文本（可选，如果你确认内容就是纯文本可以省略）
     const strippedText = html.replace(/<\/?[^>]+(>|$)/g, "");
 
-    return `\`\`\`${language}\n${strippedText}\n\`\`\``;
+    return `\n\`\`\`${language}\n${strippedText}\n\`\`\`\n`;
   },
 });
 
