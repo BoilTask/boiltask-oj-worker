@@ -43,9 +43,9 @@ export class HduCrawler extends Crawler {
     for (const el of panels) {
       const $el = $(el);
       if ($el.hasClass("panel_title")) {
-        currentSection = await decodeHTMLToMarkdown(env, problemId, $el.text().trim(), baseUrl);
+        currentSection = await decodeHTMLToMarkdown(env, problemKey, $el.text().trim(), baseUrl);
       } else if ($el.hasClass("panel_content")) {
-        contentMap[currentSection] = await decodeHTMLToMarkdown(env, problemId, $el.html().trim(), baseUrl);
+        contentMap[currentSection] = await decodeHTMLToMarkdown(env, problemKey, $el.html().trim(), baseUrl);
       }
     }
 
