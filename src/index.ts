@@ -29,7 +29,7 @@ export default {
         return NewResponse(ErrorCode.ParamNotFound, "Missing 'problem' parameter");
       }
 
-      const ojCrawler = await GetOjCrawler(oj);
+      const ojCrawler = GetOjCrawler(oj);
       if (!ojCrawler) {
         return NewResponse(ErrorCode.OjNotSupport, "Unsupported OJ");
       }
