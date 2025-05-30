@@ -66,9 +66,12 @@ export class CodeforcesCrawler extends Crawler {
     const sampleDiv = divList.eq(4);
     sampleDiv.find(".section-title").remove();
     let sampleHtml = sampleDiv.html();
-    sampleHtml = sampleHtml.replaceAll(/<div class="title">Input<\/div>/g, "<h3>Input</h3>");
-    sampleHtml = sampleHtml.replaceAll(/<div class="title">Output<\/div>/g, "<h3>Output</h3>");
-    const sample = await decodeHTMLToMarkdown(env, problemKey, sampleHtml, baseUrl);
+    let sample = null;
+    if (sampleHtml) {
+      sampleHtml = sampleHtml.replaceAll(/<div class="title">Input<\/div>/g, "<h3>Input</h3>");
+      sampleHtml = sampleHtml.replaceAll(/<div class="title">Output<\/div>/g, "<h3>Output</h3>");
+      sample = await decodeHTMLToMarkdown(env, problemKey, sampleHtml, baseUrl);
+    }
 
     let hint = null;
     if (divList.eq(5).html()) {
@@ -95,7 +98,7 @@ export class CodeforcesCrawler extends Crawler {
             description: description || "",
             input: input || "",
             output: output || "",
-            sample: sample || "",
+            sample: sample ? "\n\n## Examples\n\n" + sample : "",
             hint: hint ? "\n\n## Note\n\n" + hint : "",
           }),
         },

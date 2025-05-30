@@ -20,8 +20,4 @@ ProblemParams:
 
 ## Output
 
-{{output}}
-
-## Examples
-
-{{sample}}{{hint}}
+{{output}}{{sample}}{{hint}}
