@@ -15,7 +15,7 @@ export class ZojCrawler extends Crawler {
       method: "GET",
       redirect: "manual",
     });
-    if (vjudgeRes.status !== 200) {
+    if (vjudgeRes.status !== 303) {
       return {
         code: ErrorCode.OjError,
         data: "Failed to fetch problem page",
@@ -23,10 +23,10 @@ export class ZojCrawler extends Crawler {
     }
     const url = vjudgeRes.headers.get("location");
 
-    let apiUrlRegex = /https:\/\/pintia\.cn\/problem-sets\/(\d+)\/problems\/(\d+)/;
+    let apiUrlRegex = /\S+problem-sets\/(\d+)\/problems\/(\d+)/;
     let apiUrlMatch = url.match(apiUrlRegex);
     if (!apiUrlMatch) {
-      apiUrlRegex = /https:\/\/pintia\.cn\/problem-sets\/(\d+)\/exam\/problems\/type\/\d+\?problemSetProblemId=(\d+)/;
+      apiUrlRegex = /\S+problem-sets\/(\d+)\/exam\/problems\/type\/\d+\?problemSetProblemId=(\d+)/;
       apiUrlMatch = url.match(apiUrlRegex);
       if (!apiUrlMatch) {
         throw new Error("Failed to parse API URL from vjudge response");
