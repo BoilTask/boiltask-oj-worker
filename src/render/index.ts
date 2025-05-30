@@ -22,9 +22,6 @@ export async function fixAndUploadAllLinks(env: Env, problemKey: string, html: s
   const replacements: Replacement[] = [];
 
   const collectLinks = (pattern: RegExp, forceUpload: bool) => {
-    if (!html) {
-      return;
-    }
     html.replace(pattern, (match, ...args) => {
       const offset = args[args.length - 2]; // match offset 是倒数第二个参数
       replacements.push({
@@ -82,9 +79,7 @@ export async function fixAndUploadAllLinks(env: Env, problemKey: string, html: s
     result += html.slice(lastIndex, r.start) + r.replacement;
     lastIndex = r.end;
   }
-  if (html) {
-    result += html.slice(lastIndex); // append剩下的部分
-  }
+  result += html.slice(lastIndex); // append剩下的部分
 
   return result;
 }
@@ -101,7 +96,7 @@ turndownService.addRule("center", {
     return node.nodeName.toLowerCase() === "center";
   },
   replacement: function (content, node) {
-    return '<div style="text-align: center;">' + node.innerHTML + "</div>";
+    return "<div style=\"text-align: center;\">" + node.innerHTML + "</div>";
   },
 });
 

@@ -54,16 +54,23 @@ export class CodeforcesCrawler extends Crawler {
 
     const divList = $(".problem-statement > div");
 
-    const description = await decodeHTMLToMarkdown(env, problemKey, divList.eq(1).html(), baseUrl);
-
-    const inputDiv = divList.eq(2);
-    inputDiv.find("div").remove();
+    let description = "This problem has no description.";
+    const descriptionDiv = divList.eq(1);
+    if (!descriptionDiv.hasClass("input-specification")) {
+      // 如果包含input-specification类，则跳过
+      if (descriptionDiv.find(".input-specification").length <= 0 && descriptionDiv.find(".output-specification").length <= 0) {
+        description = await decodeHTMLToMarkdown(env, problemKey, descriptionDiv.html(), baseUrl);
+      }
+    }
+    // 获取divList中具有"input-specification"类的div
+    const inputDiv = problemStatement.find(".input-specification");
+    inputDiv.find(".section-title").remove();
     const input = await decodeHTMLToMarkdown(env, problemKey, inputDiv.html(), baseUrl);
-    const outputDiv = divList.eq(3);
-    outputDiv.find("div").remove();
+    const outputDiv = problemStatement.find(".output-specification");
+    outputDiv.find(".section-title").remove();
     const output = await decodeHTMLToMarkdown(env, problemKey, outputDiv.html(), baseUrl);
 
-    const sampleDiv = divList.eq(4);
+    const sampleDiv = problemStatement.find(".sample-tests");
     sampleDiv.find(".section-title").remove();
     let sampleHtml = sampleDiv.html();
     let sample = null;
@@ -74,9 +81,9 @@ export class CodeforcesCrawler extends Crawler {
     }
 
     let hint = null;
-    if (divList.eq(5).html()) {
-      const hintDiv = divList.eq(5);
-      hintDiv.find("div").remove();
+    const hintDiv = problemStatement.find(".note");
+    if (hintDiv.html()) {
+      hintDiv.find(".section-title").remove();
       hint = await decodeHTMLToMarkdown(env, problemKey, hintDiv.html(), baseUrl);
     }
 
