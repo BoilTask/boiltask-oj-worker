@@ -23,10 +23,10 @@ export class ZojCrawler extends Crawler {
     }
     const url = vjudgeRes.headers.get("location");
 
-    let apiUrlRegex = /https:\/\/pintia\.cn\/problem-sets\/(\d+)\/exam\/problems\/type\/\d+\?problemSetProblemId=(\d+)/;
+    let apiUrlRegex = /https:\/\/pintia\.cn\/problem-sets\/(\d+)\/problems\/(\d+)/;
     let apiUrlMatch = url.match(apiUrlRegex);
     if (!apiUrlMatch) {
-      apiUrlRegex = /https:\/\/pintia\.cn\/problem-sets\/(\d+)\/problems\/(\d+)/;
+      apiUrlRegex = /https:\/\/pintia\.cn\/problem-sets\/(\d+)\/exam\/problems\/type\/\d+\?problemSetProblemId=(\d+)/;
       apiUrlMatch = url.match(apiUrlRegex);
       if (!apiUrlMatch) {
         throw new Error("Failed to parse API URL from vjudge response");
