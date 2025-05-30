@@ -93,7 +93,7 @@ export class ZojCrawler extends Crawler {
           content: render(templateText, {
             oj: "zoj",
             problem: problemId,
-            oj_title: "POJ",
+            oj_title: "ZOJ",
             title: title,
             timeLimit: timeLimit,
             memoryLimit: memoryLimit,
