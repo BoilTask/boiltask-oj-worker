@@ -1,7 +1,6 @@
-import { render, decodeHTMLToMarkdown } from "render";
+import { render } from "render";
 import { CrawlerResponse } from "../define";
 import { Crawler } from "../crawler";
-import * as cheerio from "cheerio";
 import { ErrorCode } from "../../error/code";
 
 export class DidaojCrawler extends Crawler {
@@ -10,9 +9,7 @@ export class DidaojCrawler extends Crawler {
   }
 
   async fetchContent(request: Request, env: Env, problemId: string): Promise<CrawlerResponse> {
-    const problemKey = `${this.getName()}-${problemId}`;
-    const baseUrl = "https://oj.didapipa.com/";
-    const url = `https://oj-api.didapipa.com/problem?id=${problemId}`;
+    const url = `https://oj-api.didapipa.com/problem?key=${problemId}`;
     const res = await fetch(url);
     if (res.status !== 200) {
       return {
