@@ -18,10 +18,17 @@ export class CodeforcesCrawler extends Crawler {
     const problemName = match[2];
 
     const myHeaders = new Headers();
-    myHeaders.append("User-Agent", "BoilTask OJ backup problem");
-    myHeaders.append("Accept", "*/*");
+    myHeaders.append("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36");
+    myHeaders.append("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8");
+    myHeaders.append("Accept-Language", "en-US,en;q=0.5");
+    myHeaders.append("Accept-Encoding", "gzip, deflate, br");
     myHeaders.append("Host", "codeforces.com");
     myHeaders.append("Connection", "keep-alive");
+    myHeaders.append("Upgrade-Insecure-Requests", "1");
+    myHeaders.append("Sec-Fetch-Dest", "document");
+    myHeaders.append("Sec-Fetch-Mode", "navigate");
+    myHeaders.append("Sec-Fetch-Site", "none");
+    myHeaders.append("Sec-Fetch-User", "?1");
     const requestOptions = {
       method: "GET",
       headers: myHeaders,
