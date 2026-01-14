@@ -32,7 +32,7 @@ export class CodeforcesCrawler extends Crawler {
     if (res.status !== 200) {
       return {
         code: ErrorCode.OjError,
-        data: "Failed to fetch problem page",
+        data: "Failed to fetch problem page, status:" + res.status,
       };
     }
     const buffer = await res.arrayBuffer();
